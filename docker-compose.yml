@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  mcp-audio-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    ports:
+      - "8000:8000"  # API
+      - "8001:8001"  # Metrics
+    environment:
+      - MCP_MAX_WORKERS=4
+      - MCP_MAX_MEMORY_MB=1024
+      - MCP_REQUEST_TIMEOUT=30
+      - MCP_MAX_CONCURRENT=10
+      - MCP_MAX_QUEUE_SIZE=100
+    volumes:
+      - mcp-cache:/var/lib/mcp/cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+    depends_on:
+      - mcp-audio-server
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+volumes:
+  mcp-cache:
+  redis-data:
+  prometheus-data:
+  grafana-data:

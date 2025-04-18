@@ -1,0 +1,25 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python files
+*.py text
+*.pyw text
+
+# Specific files
+*.md text
+*.toml text
+*.yml text
+*.yaml text
+*.json text
+
+# Binary files
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.flac binary
+
+# Shell scripts
+*.sh text eol=lf
+
+# Dockerfile
+Dockerfile text

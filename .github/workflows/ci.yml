@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+    
+    - name: Install dependencies
+      run: |
+        poetry install
+    
+    - name: Run tests
+      run: |
+        poetry run pytest
+    
+    - name: Lint with black
+      run: |
+        poetry run black --check .
+    
+    - name: Lint with isort
+      run: |
+        poetry run isort --check-only --profile black .
+    
+    - name: Type check with mypy
+      run: |
+        poetry run mypy mcp_audio_server
+    
+    - name: Check licenses
+      run: |
+        # Install pip-licenses to check for license compliance
+        pip install pip-licenses
+        # Run license check and fail if any disallowed licenses are found
+        # Add grep pattern for disallowed licenses (e.g., GPL, AGPL)
+        pip-licenses --format=json | grep -v "GPL"
+        if [ $? -ne 0 ]; then
+          echo "Found disallowed licenses"
+          exit 1
+        fi
+
+  build-and-push:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+    
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: yourusername/mcp-audio-server:latest
