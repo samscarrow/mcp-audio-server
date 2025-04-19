@@ -1,6 +1,6 @@
 # MCP Audio Server Architecture
 
-This document provides a high-level overview of the MCP Audio Server architecture.
+This document provides a high-level overview of the MCP Audio Server architecture, including the request flow, key components, and design principles.
 
 ## System Overview
 

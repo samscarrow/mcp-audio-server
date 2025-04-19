@@ -1,0 +1,17 @@
+{
+  "current_version": "1.0.0",
+  "schemas": {
+    "1.0.0": {
+      "audio_analysis_response": "v1/audio_analysis_response.schema.json",
+      "chord_analysis": "v1/chord_analysis.schema.json"
+    }
+  },
+  "version_history": [
+    {
+      "version": "1.0.0",
+      "release_date": "2025-04-18",
+      "deprecated": false,
+      "supported_until": "2026-04-18"
+    }
+  ]
+}

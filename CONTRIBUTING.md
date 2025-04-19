@@ -91,18 +91,57 @@ Types include:
 
 All code changes should include tests:
 
-1. Unit tests for individual functions
-2. Integration tests for components
+1. Unit tests for individual functions and modules
+2. Integration tests for component interactions
 3. End-to-end tests for API flows
+4. Schema validation tests for data models
+5. Negative test cases that verify proper error handling
 
-Run tests:
+### Running Tests
+
+Run the full test suite with coverage reporting:
 ```bash
 pytest
 ```
 
-Run with coverage:
+Run a specific test file:
 ```bash
-pytest --cov=mcp_audio_server --cov-report=xml --cov-report=term
+pytest tests/test_end_to_end.py
+```
+
+Run tests with a specific marker:
+```bash
+pytest -m unit
+```
+
+Available markers: `unit`, `integration`, `e2e`, `functional`, `schema`, `slow`
+
+### Test Coverage Requirements
+
+The project maintains a minimum of 90% test coverage. Pull requests that decrease coverage below this threshold will be rejected by CI.
+
+To view detailed coverage reports:
+```bash
+# Run tests with coverage
+pytest
+
+# Open HTML coverage report
+open htmlcov/index.html
+```
+
+### Test Fixtures
+
+Test fixtures are stored in the `tests/fixtures/` directory:
+
+- `tempo/`: Audio files with known tempo values (60, 90, 120, 150 BPM)
+- `key/`: Audio files in various musical keys
+- `chords/`: Audio files with known chord progressions
+- `edge_cases/`: Special cases for testing boundary conditions
+- `errors/`: Deliberately malformed files for testing error handling
+
+To generate additional test fixtures:
+```bash
+python create_test_fixtures.py
 ```
 
 ## Documentation

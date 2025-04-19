@@ -1,0 +1,128 @@
+/* Custom styles for MCP Audio Server documentation */
+
+/* Add more spacing to navigation */
+.md-nav {
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.md-nav__item {
+  padding: 0.2rem 0;
+}
+
+/* Style code blocks */
+.md-typeset pre > code {
+  border-radius: 0.2rem;
+}
+
+/* Style tables */
+.md-typeset table:not([class]) {
+  font-size: 0.75rem;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: rgba(0, 0, 0, 0.05);
+  font-weight: bold;
+}
+
+/* Style admonitions (notes, warnings) */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 0.2rem;
+}
+
+/* Add API endpoint styling */
+.api-endpoint {
+  background-color: #f5f5f5;
+  border-left: 3px solid #4051b5;
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  border-radius: 0 0.2rem 0.2rem 0;
+}
+
+.api-endpoint__method {
+  font-weight: bold;
+  color: #4051b5;
+}
+
+.api-endpoint__path {
+  font-family: monospace;
+}
+
+/* Custom class for property tables */
+.property-table th:first-child {
+  width: 25%;
+}
+
+.property-table th:nth-child(2) {
+  width: 20%;
+}
+
+/* Custom class for changelog entries */
+.changelog-entry {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.changelog-entry__version {
+  font-weight: bold;
+  color: #4051b5;
+}
+
+.changelog-entry__date {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Custom style for API parameters */
+.parameter {
+  font-family: monospace;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.2rem;
+}
+
+.parameter--required {
+  border-bottom: 2px solid #4051b5;
+}
+
+/* Custom style for schema badges */
+.schema-badge {
+  display: inline-block;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.2rem;
+  font-size: 0.7rem;
+  line-height: 1;
+  margin-right: 0.5rem;
+}
+
+.schema-badge--string {
+  background-color: #4caf50;
+  color: white;
+}
+
+.schema-badge--number {
+  background-color: #2196f3;
+  color: white;
+}
+
+.schema-badge--boolean {
+  background-color: #ff9800;
+  color: white;
+}
+
+.schema-badge--object {
+  background-color: #9c27b0;
+  color: white;
+}
+
+.schema-badge--array {
+  background-color: #607d8b;
+  color: white;
+}
+
+.schema-badge--required {
+  background-color: #f44336;
+  color: white;
+}

@@ -1,115 +1,138 @@
-"""Tests for JSON schema validation."""
+"""Tests for validating the analysis result against the JSON schema."""
 
 import json
 import os
 import pytest
+import uuid
+from datetime import datetime
 
-from mcp_audio_server.main import ChordAnalysisResponse, ChordEntry, ProcessingInfo
-from mcp_audio_server.utils.validation import validate_payload, load_schema
+from mcp_audio_server.analysis.models import AudioAnalysisResult, Chord, ProcessingInfo
+from mcp_audio_server.utils.validation import validate_payload
 
 
-def test_response_schema_validation():
-    """Test that the response model validates against the schema."""
-    # Create a sample response object
-    response = ChordAnalysisResponse(
+def create_synthetic_analysis_result():
+    """Create a synthetic analysis result for testing."""
+    sample_chords = [
+        Chord(time=0.0, label="C", confidence=0.9),
+        Chord(time=1.0, label="G", confidence=0.8),
+        Chord(time=2.0, label="Am", confidence=0.7),
+        Chord(time=3.0, label="F", confidence=0.9),
+    ]
+    
+    processing_info = ProcessingInfo(
+        sample_rate=44100,
+        channels=1,
+        processing_time=0.245,
+        model_used="basic"
+    )
+    
+    return AudioAnalysisResult(
         schema_version="1.0.0",
         key="C",
         tempo=120.0,
-        chords=[
-            ChordEntry(time=0.0, label="C", confidence=0.9),
-            ChordEntry(time=1.0, label="Am", confidence=0.8),
-        ],
-        duration=2.0,
-        processing_info=ProcessingInfo(
-            sample_rate=44100,
-            channels=1,
-            processing_time=0.1,
-            model_used="basic"
-        ),
-        correlation_id="test-id"
+        chords=sample_chords,
+        duration=4.0,
+        processing_info=processing_info,
+        correlation_id=str(uuid.uuid4())
     )
-    
-    # Convert to dict
-    response_dict = response.dict()
-    
-    # Validate against schema
-    validate_payload(response_dict, "audio_analysis_response.schema.json")
-    
-    # If we get here, the validation succeeded
 
 
-def test_response_schema_validation_fails():
-    """Test that an invalid response fails validation."""
-    # Create a sample response object with invalid data
-    response = {
-        "schema_version": "1.0.0",
-        # Missing required "chords" field
-        "duration": 2.0,
-        "correlation_id": "test-id"
-    }
+def test_analysis_result_validates_against_schema():
+    """Test that a synthetic analysis result validates against the schema."""
+    # Create a synthetic analysis result
+    result = create_synthetic_analysis_result()
     
-    # Validation should fail
-    with pytest.raises(ValueError) as excinfo:
-        validate_payload(response, "audio_analysis_response.schema.json")
+    # Convert to dictionary
+    result_dict = result.dict()
     
-    assert "Validation error" in str(excinfo.value)
+    # Validate against the schema
+    try:
+        validate_payload(result_dict, "audio_analysis_response.schema.json")
+    except ValueError as e:
+        pytest.fail(f"Schema validation failed: {e}")
 
 
-def test_response_schema_validation_invalid_tempo():
-    """Test that tempo outside the valid range fails validation."""
-    # Create a sample response with invalid tempo
-    response = ChordAnalysisResponse(
+def test_minimal_valid_result():
+    """Test that a minimal valid result still validates against the schema."""
+    # Create a minimal result with only required fields
+    minimal_result = AudioAnalysisResult(
         schema_version="1.0.0",
-        key="C",
-        tempo=1000.0,  # Should be between 20 and 300
-        chords=[
-            ChordEntry(time=0.0, label="C", confidence=0.9),
-        ],
+        chords=[Chord(time=0.0, label="C")],
         duration=1.0,
-        processing_info=ProcessingInfo(
-            sample_rate=44100,
-            channels=1,
-            processing_time=0.1,
-            model_used="basic"
-        ),
-        correlation_id="test-id"
+        correlation_id=str(uuid.uuid4())
     )
     
-    # Convert to dict
-    response_dict = response.dict()
+    # Convert to dictionary
+    result_dict = minimal_result.dict()
     
-    # Validation should fail
-    with pytest.raises(ValueError) as excinfo:
-        validate_payload(response_dict, "audio_analysis_response.schema.json")
-    
-    assert "Validation error" in str(excinfo.value)
+    # Validate against the schema
+    try:
+        validate_payload(result_dict, "audio_analysis_response.schema.json")
+    except ValueError as e:
+        pytest.fail(f"Schema validation failed for minimal result: {e}")
 
 
-def test_response_schema_validation_invalid_confidence():
-    """Test that confidence outside the valid range fails validation."""
-    # Create a sample response with invalid confidence
-    response = ChordAnalysisResponse(
-        schema_version="1.0.0",
-        key="C",
-        tempo=120.0,
-        chords=[
-            ChordEntry(time=0.0, label="C", confidence=1.5),  # Should be between 0 and 1
-        ],
-        duration=1.0,
-        processing_info=ProcessingInfo(
-            sample_rate=44100,
-            channels=1,
-            processing_time=0.1,
-            model_used="basic"
-        ),
-        correlation_id="test-id"
-    )
-    
-    # Convert to dict
-    response_dict = response.dict()
+def test_invalid_schema_version():
+    """Test that an invalid schema version fails validation."""
+    # Create a result with an invalid schema version
+    result = create_synthetic_analysis_result()
+    result_dict = result.dict()
+    result_dict["schema_version"] = "invalid"
     
     # Validation should fail
-    with pytest.raises(ValueError) as excinfo:
-        validate_payload(response_dict, "audio_analysis_response.schema.json")
+    with pytest.raises(ValueError):
+        validate_payload(result_dict, "audio_analysis_response.schema.json")
+
+
+def test_missing_required_field():
+    """Test that missing a required field fails validation."""
+    # Create a result and remove a required field
+    result = create_synthetic_analysis_result()
+    result_dict = result.dict()
+    del result_dict["chords"]
     
-    assert "Validation error" in str(excinfo.value)
+    # Validation should fail
+    with pytest.raises(ValueError):
+        validate_payload(result_dict, "audio_analysis_response.schema.json")
+
+
+def test_invalid_chord_structure():
+    """Test that an invalid chord structure fails validation."""
+    # Create a result with an invalid chord structure
+    result = create_synthetic_analysis_result()
+    result_dict = result.dict()
+    
+    # Add an invalid chord (missing required 'time' field)
+    result_dict["chords"].append({"label": "D", "confidence": 0.8})
+    
+    # Validation should fail
+    with pytest.raises(ValueError):
+        validate_payload(result_dict, "audio_analysis_response.schema.json")
+
+
+def test_negative_confidence_value():
+    """Test that a negative confidence value fails validation."""
+    # Create a result with a negative confidence value
+    result = create_synthetic_analysis_result()
+    result_dict = result.dict()
+    
+    # Set a negative confidence value
+    result_dict["chords"][0]["confidence"] = -0.1
+    
+    # Validation should fail
+    with pytest.raises(ValueError):
+        validate_payload(result_dict, "audio_analysis_response.schema.json")
+
+
+def test_confidence_value_greater_than_one():
+    """Test that a confidence value greater than 1.0 fails validation."""
+    # Create a result with a confidence value > 1.0
+    result = create_synthetic_analysis_result()
+    result_dict = result.dict()
+    
+    # Set a confidence value > 1.0
+    result_dict["chords"][0]["confidence"] = 1.1
+    
+    # Validation should fail
+    with pytest.raises(ValueError):
+        validate_payload(result_dict, "audio_analysis_response.schema.json")

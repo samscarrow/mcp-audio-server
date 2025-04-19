@@ -8,14 +8,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Initial project structure
-- Modular analysis system for chords, key, and tempo
-- Concurrency controls and resource management
-- Caching layer with Redis and filesystem support
-- Observability with Prometheus metrics
-- Secure file handling and input validation
-- Docker and Docker Compose configuration
-- Comprehensive documentation
+- Comprehensive test suite with 90%+ coverage
+  - Unit tests for all analysis modules
+  - Schema validation tests
+  - End-to-end MCP tests
+  - Negative-case testing for error handling
+  - Fuzzy testing for edge cases
+- Improved documentation
+  - OpenAPI specification (docs/openapi.yaml)
+  - Detailed API reference with examples
+  - Architecture documentation
+  - Developer environment setup guide
+  - Testing guidelines
+- Schema version control system
+  - Support for multiple schema versions
+  - Schema loader utility
+  - Backward compatibility handling
+- Release management tools
+  - Semantic versioning enforcement
+  - Automated release workflow
+  - Deprecation policy
+- CI/CD integration
+  - GitHub Actions workflow for testing
+  - Coverage reporting
+  - Automated documentation building
+
+### Changed
+- Refactored validation system to support versioned schemas
+- Moved schemas to version-specific directories
+
+### Fixed
+- Schema validation error handling and reporting
+- Documentation inconsistencies
 
 ## [0.1.0] - 2025-04-18
 

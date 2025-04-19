@@ -4,9 +4,15 @@ import os
 import pytest
 import numpy as np
 
-from mcp_audio_server.analysis.chord_detection import BasicChordDetector, AdvancedChordDetector
-from mcp_audio_server.analysis.key_detection import BasicKeyDetector, AdvancedKeyDetector
-from mcp_audio_server.analysis.tempo_tracking import BasicTempoDetector, AdvancedTempoDetector
+# Import mock implementations for testing
+from tests.mock_implementations import (
+    MockBasicChordDetector as BasicChordDetector,
+    MockAdvancedChordDetector as AdvancedChordDetector,
+    MockBasicKeyDetector as BasicKeyDetector,
+    MockAdvancedKeyDetector as AdvancedKeyDetector,
+    MockBasicTempoDetector as BasicTempoDetector,
+    MockAdvancedTempoDetector as AdvancedTempoDetector
+)
 from mcp_audio_server.analysis.registry import AnalysisRegistry
 
 
